@@ -567,14 +567,17 @@ std::vector<const item *> Character::items_with( const std::function<bool(const 
 
 item& Character::i_add(item it)
 {
- itype_id item_type_id = "null";
- if( it.type ) item_type_id = it.type->id;
+    itype_id item_type_id = "null";
+    if( it.type ) {
+        item_type_id = it.type->id;
+    }
 
- last_item = item_type_id;
+    last_item = item_type_id;
 
- if (it.is_food() || it.is_ammo() || it.is_gun()  || it.is_armor() ||
-     it.is_book() || it.is_tool() || it.is_weap() || it.is_food_container())
-  inv.unsort();
+    if( it.is_food() || it.is_ammo() || it.is_gun()  || it.is_armor() ||
+        it.is_book() || it.is_tool() || it.is_weap() || it.is_food_container() ) {
+        inv.unsort();
+    }
 
     // if there's a desired invlet for this item type, try to use it
     bool keep_invlet = false;
@@ -586,6 +589,7 @@ item& Character::i_add(item it)
             break;
         }
     }
+
     auto &item_in_inv = inv.add_item(it, keep_invlet);
     item_in_inv.on_pickup( *this );
     return item_in_inv;
@@ -989,6 +993,13 @@ SkillLevel const& Character::get_skill_level(const skill_id &ident) const
         return none;
     }
     return get_skill_level( &ident.obj() );
+}
+
+bool Character::meets_skill_requirements( const std::map<skill_id, int> &req ) const
+{
+    return std::all_of( req.begin(), req.end(), [this]( const std::pair<skill_id, int> &pr ) {
+        return get_skill_level( pr.first ) >= pr.second;
+    });
 }
 
 int Character::skill_dispersion( const item& gun, bool random ) const
