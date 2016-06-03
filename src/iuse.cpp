@@ -7137,7 +7137,8 @@ int iuse::ehandcuffs(player *p, item *it, bool t, const tripoint &pos)
         const int x = it->get_var( "HANDCUFFS_X", 0 );
         const int y = it->get_var( "HANDCUFFS_Y", 0 );
 
-        if ((it->ammo_remaining() > it->type->maximum_charges() - 1000) && (x != pos.x || y != pos.y)) {
+        if( ( it->ammo_remaining() > ( it->ammo_capacity() * 2 / 3 ) ) &&
+            (x != pos.x || y != pos.y) ) {
 
             if( p->has_item( *it ) && p->weapon.type->id == "e_handcuffs") {
 
