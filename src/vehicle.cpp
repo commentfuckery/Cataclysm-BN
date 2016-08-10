@@ -872,7 +872,7 @@ void vehicle::use_controls( const tripoint &pos )
     std::vector<uimenu_entry> options;
     std::vector<std::function<void()>> actions;
 
-    auto const keybind = [&]( std::string const &opt ) {
+    auto const keybind = [this]( std::string const &opt ) {
         auto const keys = input_context( "VEHICLE" ).keys_bound_to( opt );
         return keys.empty() ? ' ' : keys.front();
     };
@@ -882,7 +882,7 @@ void vehicle::use_controls( const tripoint &pos )
 
     if( remote ) {
         options.emplace_back( _( "Stop controlling" ), keybind( "RELEASE_CONTROLS" ) );
-        actions.push_back( [&]{
+        actions.push_back( [this]{
             g->u.controlling_vehicle = false;
             g->setremoteveh( nullptr );
             add_msg( _( "You stop controlling the vehicle." ) );
@@ -893,7 +893,7 @@ void vehicle::use_controls( const tripoint &pos )
     } else if( g->m.veh_at( pos ) == this ) {
         if( g->u.controlling_vehicle ) {
             options.emplace_back( _( "Let go of controls" ), keybind( "RELEASE_CONTROLS" ) );
-            actions.push_back( [&]{
+            actions.push_back( [this]{
                 g->u.controlling_vehicle = false;
                 add_msg( _( "You let go of the controls." ) );
             } );
@@ -909,7 +909,7 @@ void vehicle::use_controls( const tripoint &pos )
     if( has_part( "ENGINE" ) ) {
         if( g->u.controlling_vehicle || ( remote && engine_on ) ) {
             options.emplace_back( _( "Stop driving" ), keybind( "TOGGLE_ENGINE" ) );
-            actions.push_back( [&] { 
+            actions.push_back( [this] { 
                 if( engine_on && has_engine_type_not( fuel_type_muscle, true ) ){
                     add_msg( _( "You turn the engine off and let go of the controls." ) );
                 } else {
@@ -922,7 +922,7 @@ void vehicle::use_controls( const tripoint &pos )
 
         } else if( has_engine_type_not(fuel_type_muscle, true ) ) {
             options.emplace_back( engine_on ? _( "Turn off the engine" ) : _( "Turn on the engine" ), keybind( "TOGGLE_ENGINE" ) );
-            actions.push_back( [&] { 
+            actions.push_back( [this] { 
                 if( engine_on ) {
                     engine_on = false;
                     add_msg( _( "You turn the engine off." ) );
@@ -935,14 +935,14 @@ void vehicle::use_controls( const tripoint &pos )
 
     if( has_part( "HORN") ) {
         options.emplace_back( _( "Honk horn" ), keybind( "SOUND_HORN" ) );
-        actions.push_back( [&]{ honk_horn(); } );
+        actions.push_back( [this]{ honk_horn(); } );
     }
 
-    auto add_toggle = [&]( const std::string &name, char key, const std::string &flag ) {
+    const auto add_toggle = [this, &options, &actions]( const std::string &name, char key, std::string flag ) {
         if( has_part( flag ) ) {
             if( has_part( flag, true ) ) {
                 options.emplace_back( string_format( _( "Turn off %s" ), name.c_str() ), key );
-                actions.push_back( [&]{
+                actions.push_back( [this, flag]{
                     for( auto e : get_parts( flag, true ) ) {
                         add_msg( _( "Turned off %s." ), e->name().c_str() );
                         e->enabled = false;
@@ -950,7 +950,7 @@ void vehicle::use_controls( const tripoint &pos )
                 } );
             } else {
                 options.emplace_back( string_format( _( "Turn on %s" ), name.c_str() ), key );
-                actions.push_back( [&]{
+                actions.push_back( [this, flag]{
                     for( auto e : get_parts( flag ) ) {
                         if( e->enabled ) {
                             continue;
@@ -981,13 +981,13 @@ void vehicle::use_controls( const tripoint &pos )
 
         if( has_part( "DOOR_MOTOR" ) ) {
             options.emplace_back( _( "Toggle doors" ), keybind( "TOGGLE_DOORS" ) );
-            actions.push_back( [&]{ control_doors(); } );
+            actions.push_back( [this]{ control_doors(); } );
         }
 
         options.emplace_back( cruise_on ? _( "Disable cruise control" ) : _( "Enable cruise control" ),
                               keybind( "TOGGLE_CRUISE_CONTROL" ) );
 
-        actions.emplace_back( [&]{
+        actions.emplace_back( [this]{
             cruise_on = !cruise_on;
             add_msg( cruise_on ? _( "Cruise control turned on" ) : _( "Cruise control turned off" ) );
         } );
@@ -996,7 +996,7 @@ void vehicle::use_controls( const tripoint &pos )
     options.emplace_back( tracking_on ? _( "Forget vehicle position" ) : _( "Remember vehicle position" ),
                           keybind( "TOGGLE_TRACKING" ) );
 
-    actions.push_back( [&] {
+    actions.push_back( [this] {
         if( tracking_on ) {
             overmap_buffer.remove_vehicle( this );
             tracking_on = false;
@@ -1010,22 +1010,22 @@ void vehicle::use_controls( const tripoint &pos )
 
     if( ( is_foldable() || tags.count( "convertible" ) ) && !remote ) {
         options.emplace_back( string_format( _( "Fold %s" ), name.c_str() ), keybind( "FOLD_VEHICLE" ) );
-        actions.push_back( [&]{ fold_up(); } );
+        actions.push_back( [this]{ fold_up(); } );
     }
 
     if( has_part( "ENGINE" ) ) {
         options.emplace_back( _( "Control individual engines" ), keybind( "CONTROL_ENGINES" ) );
-        actions.push_back( [&]{ control_engines(); } );
+        actions.push_back( [this]{ control_engines(); } );
     }
 
     if( is_alarm_on ) {
         if( velocity == 0 && !remote ) {
             options.emplace_back( _( "Try to disarm alarm." ), keybind( "TOGGLE_ALARM" ) );
-            actions.push_back( [&]{ smash_security_system(); } );
+            actions.push_back( [this]{ smash_security_system(); } );
 
         } else if( has_electronic_controls && has_part( "SECURITY" ) ) {
             options.emplace_back( _( "Trigger alarm" ), keybind( "TOGGLE_ALARM" ) );
-            actions.push_back( [&]{
+            actions.push_back( [this]{
                 is_alarm_on = true;
                 add_msg( _( "You trigger the alarm" ) );
             } );
@@ -1034,18 +1034,18 @@ void vehicle::use_controls( const tripoint &pos )
 
     if( has_part( "TURRET" ) ) {
         options.emplace_back( _( "Set turret targeting modes" ), keybind( "TURRET_TARGET_MODE" ) );
-        actions.push_back( [&]{ turrets_set_targeting(); } );
+        actions.push_back( [this]{ turrets_set_targeting(); } );
 
         options.emplace_back( _( "Set turret firing modes" ), keybind( "TURRET_FIRE_MODE" ) );
-        actions.push_back( [&]{ turrets_set_mode(); } );
+        actions.push_back( [this]{ turrets_set_mode(); } );
 
         options.emplace_back( _( "Aim turrets manually" ), keybind( "TURRET_MANUAL_AIM" ) );
-        actions.push_back( [&]{ turrets_aim(); } );
+        actions.push_back( [this]{ turrets_aim(); } );
     }
 
     if( has_electronic_controls && (camera_on || ( has_part( "CAMERA" ) && has_part( "CAMERA_CONTROL" ) ) ) ) {
         options.emplace_back( camera_on ? _( "Turn off camera system" ) : _( "Turn on camera system" ), keybind( "TOGGLE_CAMERA") );
-        actions.push_back( [&]{
+        actions.push_back( [this]{
             if( camera_on ) {
                 camera_on = false;
                 add_msg( _("Camera system disabled") );
