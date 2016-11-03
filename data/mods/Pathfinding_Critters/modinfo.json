@@ -1,0 +1,10 @@
+[
+  {
+    "type": "MOD_INFO",
+    "ident": "Pathfinding_Critters",
+    "name": "Pathfinding Critters",
+    "description": "Makes all critters pathfind well.  May make the game noticeably slower!",
+    "category": "rebalance",
+    "path": ""
+  }
+]

@@ -1803,6 +1803,7 @@ classes = {
             armor_fire = { type = "int", writable = true },
             armor_stab = { type = "int", writable = true },
             attack_cost = { type = "int", writable = true },
+            bash_skill = { type = "int", writable = true },
             color = { type = "int", writable = true },
             death_drops = { type = "string", writable = true },
             def_chance = { type = "int", writable = true },
@@ -1815,6 +1816,7 @@ classes = {
             melee_sides = { type = "int", writable = true },
             melee_skill = { type = "int", writable = true },
             morale = { type = "int", writable = true },
+            path_settings = { type = "pathfinding_settings", writable = true },
             phase = { type = "phase_id", writable = true },
             revert_to_itype = { type = "string", writable = true },
             size = { type = "m_size", writable = true },
@@ -1877,6 +1879,18 @@ classes = {
             { name = "note", rval = "string", args = { "int", "int", "int" } },
             { name = "num_mongroups", rval = "int", args = { } },
             { name = "num_monsters", rval = "int", args = { } },
+        }
+    },
+    pathfinding_settings = {
+        attributes = {
+            bash_strength = { type = "int", writable = true },
+            max_dist = { type = "int", writable = true },
+            max_length = { type = "int", writable = true },
+            allow_open_doors = { type = "bool", writable = true },
+            avoid_traps = { type = "bool", writable = true },
+            allow_climb_stairs = { type = "bool", writable = true },
+        },
+        functions = {
         }
     },
     volume = {
