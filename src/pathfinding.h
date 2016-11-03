@@ -47,15 +47,30 @@ struct pathfinding_cache {
 };
 
 struct pathfinding_settings {
-    int bash_strength = 0;
-    int max_dist = 0;
-    // At least 2 times the above, usually more
-    int max_length = 0;
+    /** In same unit as terrain/furniture bashing resistance */
+    int bash_strength = -1;
+    /** In tiles. If distance to target is greater than that, pathfinding is cancelled. */
+    int max_dist = -1;
+    /**
+     * If >0, pathfinding is cancelled once the path is known to be at least this long.
+     * In tiles times terrain movecost (2 for grass, 8 for shallow water etc.).
+     * Should be at least ~2.5 times @ref max_dist, otherwise the paths will be very simple.
+     */
+    int max_length = -1;
+    /**
+     * If >0, pathfinding is cancelled once the path is known to be at least this * distance long.
+     * Same units as @max_length. If both are set, the stricter limit is applied.
+     * For example, setting this to 2.0 will only allow straight paths, 6.0 would allow a U-turn.
+     */
+    float path_complexity = -1.0f;
 
     bool allow_open_doors = false;
     bool avoid_traps = false;
 
     bool allow_climb_stairs = true;
+
+    // @todo Implement this for NPCs
+    bool avoid_allies = false;
 
     pathfinding_settings() = default;
     pathfinding_settings( const pathfinding_settings & ) = default;

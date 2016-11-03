@@ -164,7 +164,7 @@ void MonsterGenerator::set_mtype_flags( mtype &mon )
 
 void MonsterGenerator::finalize_pathfinding_settings( mtype &mon )
 {
-    if( mon.path_settings.max_length < 0 ) {
+    if( mon.path_settings.max_length < 0 && mon.path_settings.path_complexity < 0.0f ) {
         mon.path_settings.max_length = mon.path_settings.max_dist * 5;
     }
 
@@ -592,10 +592,12 @@ void mtype::load( JsonObject &jo, const std::string & )
         // Here rather than in pathfinding.cpp because we want monster-specific defaults and was_loaded
         optional( jop, was_loaded, "max_dist", path_settings.max_dist, 0 );
         optional( jop, was_loaded, "max_length", path_settings.max_length, -1 );
+        optional( jop, was_loaded, "path_complexity", path_settings.path_complexity, -1.0f );
         optional( jop, was_loaded, "bash_strength", path_settings.bash_strength, -1 );
         optional( jop, was_loaded, "allow_open_doors", path_settings.allow_open_doors, false );
         optional( jop, was_loaded, "avoid_traps", path_settings.avoid_traps, false );
         optional( jop, was_loaded, "allow_climb_stairs", path_settings.allow_climb_stairs, true );
+        optional( jop, was_loaded, "avoid_allies", path_settings.avoid_allies, false );
     }
 }
 

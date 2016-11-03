@@ -2124,5 +2124,16 @@ const pathfinding_settings &monster::get_pathfinding_settings() const
 
 std::set<tripoint> monster::get_path_avoid() const
 {
-    return std::set<tripoint>();
+    std::set<tripoint> ret;
+    if( get_pathfinding_settings().avoid_allies ) {
+        // @todo Cache this per monster faction
+        for( size_t i = 0; i < g->num_zombies(); i++ ) {
+            const monster &critter = g->zombie( i );
+            if( attitude_to( critter ) == A_FRIENDLY ) {
+                ret.insert( critter.pos() );
+            }
+        }
+    }
+
+    return ret;
 }

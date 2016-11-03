@@ -202,11 +202,12 @@ std::vector<tripoint> map::route( const tripoint &f, const tripoint &t,
     }
 
     // If expected path length is greater than max distance, allow only line path, like above
-    if( rl_dist( f, t ) > settings.max_dist ) {
+    int dist = rl_dist( f, t );
+    if( dist > settings.max_dist ) {
         return ret;
     }
 
-    int max_length = settings.max_length;
+    int max_length = std::min<int>( settings.max_length, settings.path_complexity * dist );
     int bash = settings.bash_strength;
     bool doors = settings.allow_open_doors;
     bool trapavoid = settings.avoid_traps;

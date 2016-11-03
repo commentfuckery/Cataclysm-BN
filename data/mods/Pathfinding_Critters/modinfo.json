@@ -3,7 +3,7 @@
     "type": "MOD_INFO",
     "ident": "Pathfinding_Critters",
     "name": "Pathfinding Critters",
-    "description": "Makes all critters pathfind well.  May make the game noticeably slower!",
+    "description": "Makes all monsters pathfind well.  WARNING: May make the game run noticeably slower when near many monsters!",
     "category": "rebalance",
     "path": ""
   }

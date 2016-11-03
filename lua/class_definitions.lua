@@ -1662,7 +1662,6 @@ classes = {
             { name = "make_friendly", rval = nil, args = { } },
             { name = "make_fungus", rval = "bool", args = { } },
             { name = "melee_attack", rval = nil, args = { "Creature", "bool", "matec_id" } },
-            { name = "move", rval = nil, args = { } },
             { name = "move_effects", rval = "bool", args = { "bool" } },
             { name = "move_target", rval = "tripoint", args = { } },
             { name = "move_to", rval = "bool", args = { "tripoint" } },
@@ -1889,6 +1888,7 @@ classes = {
             allow_open_doors = { type = "bool", writable = true },
             avoid_traps = { type = "bool", writable = true },
             allow_climb_stairs = { type = "bool", writable = true },
+            avoid_allies = { type = "bool", writable = true },
         },
         functions = {
         }
