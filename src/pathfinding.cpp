@@ -196,10 +196,11 @@ std::vector<tripoint> map::route( const tripoint &f, const tripoint &t,
     if( f.z == t.z ) {
         const auto line_path = line_to( f, t );
         const auto &pf_cache = get_pathfinding_cache_ref( f.z );
-        // Check all points for any special case (including just hard terrain)
-        if( std::all_of( line_path.begin(), line_path.end(), [&pf_cache]( const tripoint & p ) {
-        return !( pf_cache.special[p.x][p.y] & non_normal );
-        } ) ) {
+        // Check if the entire path is made of flat, 100 movecost terrain with no traps or vehicles
+        bool simple_path = std::none_of( line_path.begin(), line_path.end(), [&pf_cache]( const tripoint & p ) {
+            return pf_cache.special[p.x][p.y] & non_normal;
+        } );
+        if( simple_path ) {
             const std::set<tripoint> sorted_line( line_path.begin(), line_path.end() );
 
             if( is_disjoint( sorted_line, pre_closed ) ) {
