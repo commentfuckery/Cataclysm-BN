@@ -363,6 +363,40 @@ void npc::randomize( const npc_class_id &type )
     }
 }
 
+void npc::create_from_player( const player &p, bool steal_id )
+{
+    auto old_id = getID();
+    // @todo Have assignment not clone the ID
+    player::operator=( p );
+    if( steal_id ) {
+        setID( p.getID(), true );
+    } else if( old_id < 0 ) {
+        setID( g->assign_npc_id(), true );
+    } else {
+        setID( old_id, true );
+    }
+
+    // @todo Don't roll everything, try to tell from stats
+    // For example, high melee = aggression etc.
+
+    personality.aggression = rng(-10, 10);
+    personality.bravery =    rng( -3, 10);
+    personality.collector =  rng( -1, 10);
+    personality.altruism =   rng(-10, 10);
+    mission = NPC_MISSION_NULL;
+
+    if( !one_in( 5 ) ) {
+        myclass = npc_class::random_common();
+    } else {
+        myclass = NULL_ID;
+    }
+
+    if( myclass->get_shopkeeper_items() != "EMPTY_GROUP" ) {
+        restock = DAYS( 3 );
+    }
+    has_new_items = true;
+}
+
 void npc::randomize_from_faction(faction *fac)
 {
 // Personality = aggression, bravery, altruism, collector
@@ -1956,11 +1990,6 @@ std::string npc_attitude_name(npc_attitude att)
 
     debugmsg( "Invalid attitude: %d", att );
     return _("Unknown");
-}
-
-void npc::setID (int i)
-{
-    this->player::setID(i);
 }
 
 //message related stuff

@@ -1364,8 +1364,12 @@ class player : public Character, public JsonSerializer, public JsonDeserializer
         void mod_stat( const std::string &stat, float modifier ) override;
 
         int getID () const;
-        // sets the ID, will *only* succeed when the current id is 0 (=not initialized)
-        void setID (int i);
+        /**
+         * Sets the ID. Will fail if i<0 or if ID was previously set.
+         * @param i The new ID.
+         * @param force If set, allows setting negative ID and giving new IDs.
+         */
+        void setID( int i, bool force = false );
 
         bool is_underwater() const override;
         void set_underwater(bool);

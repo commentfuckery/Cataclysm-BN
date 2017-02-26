@@ -12004,8 +12004,13 @@ float player::get_melee() const
     return get_skill_level( skill_id( "melee" ) );
 }
 
-void player::setID (int i)
+void player::setID( int i, bool force )
 {
+    if( force ) {
+        id = i;
+        return;
+    }
+
     if( id >= 0 ) {
         debugmsg( "tried to set id of a npc/player, but has already a id: %d", id );
     } else if( i < -1 ) {

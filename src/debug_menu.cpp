@@ -134,7 +134,7 @@ void npc_edit_menu()
 
     enum { D_SKILLS, D_STATS, D_ITEMS, D_DELETE_ITEMS, D_ITEM_WORN,
            D_HP, D_PAIN, D_NEEDS, D_HEALTHY, D_STATUS, D_MISSION_ADD, D_MISSION_EDIT,
-           D_TELE, D_MUTATE, D_CLASS
+           D_TELE, D_MUTATE, D_CLASS, D_POSSESS, D_CLONE_NPC
          };
     nmenu.addentry( D_SKILLS, true, 's', "%s", _( "Edit [s]kills" ) );
     nmenu.addentry( D_STATS, true, 't', "%s", _( "Edit s[t]ats" ) );
@@ -153,6 +153,10 @@ void npc_edit_menu()
     if( p.is_npc() ) {
         nmenu.addentry( D_MISSION_ADD, true, 'm', "%s", _( "Add [m]ission" ) );
         nmenu.addentry( D_CLASS, true, 'c', "%s", _( "Randomize with [c]lass" ) );
+        nmenu.addentry( D_POSSESS, true, 'P', "%s", _( "[P]ossess" ) );
+    } else {
+        // We don't offer that for NPCs because it doesn't clone NPC stats properly
+        nmenu.addentry( D_CLONE_NPC, true, 'l', "%s", _( "C[l]one as NPC" ) );
     }
     nmenu.addentry( 999, true, 'q', "%s", _( "[q]uit" ) );
     nmenu.selected = 0;
@@ -408,6 +412,29 @@ void npc_edit_menu()
                 np->randomize( ids[ classes.ret ] );
             }
         }
+        break;
+        case D_POSSESS:
+        if( !query_yn( _( "Delete all player data and replace with target's?" ) ) ) {
+            break;
+        }
+
+        g->u = p;
+        // We give the original a new ID to make the "possession" more complete (and buggy)
+        // Player grabs the old ID
+        p.setID( g->assign_npc_id() );
+        g->update_map( g->u );
+        break;
+        case D_CLONE_NPC: {
+            npc *temp = new npc();
+            temp->create_from_player( p );
+            temp->spawn_at( g->get_levx(), g->get_levy(), g->get_levz() );
+            temp->setx( p.posx() - 1 );
+            temp->sety( p.posy() );
+            temp->setz( p.posz() );
+            temp->form_opinion( p );
+            g->load_npcs();
+        }
+        break;
     }
 }
 

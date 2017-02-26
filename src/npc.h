@@ -555,6 +555,8 @@ public:
 
     // Generating our stats, etc.
     void randomize( const npc_class_id &type = NULL_ID );
+    // Copies a player and NPC-izes it
+    void create_from_player( const player &p, bool steal_id = false );
  void randomize_from_faction(faction *fac);
  void set_fac(std::string fac_name);
     /**
@@ -918,7 +920,6 @@ public:
         void load(JsonObject &jsin);
 
 private:
-    void setID (int id);
     bool dead;  // If true, we need to be cleaned up
 
     bool sees_dangerous_field( const tripoint &p ) const;
