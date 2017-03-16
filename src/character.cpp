@@ -2247,18 +2247,9 @@ std::string tag_colored_string( const std::string &s, nc_color color )
     return color_tag_open + s;
 }
 
-std::string Character::extended_description() const
+std::string Character::hp_bars() const
 {
     std::ostringstream ss;
-    if( is_player() ) {
-        // <bad>This is me, <player_name>.</bad>
-        ss << string_format( _( "This is you - %s." ), name.c_str() );
-    } else {
-        ss << string_format( _( "This is %s." ), name.c_str() );
-    }
-
-    ss << std::endl << "--" << std::endl;
-
     const auto &bps = get_all_body_parts( true );
     // Find length of bp names, to align
     // accumulate looks weird here, any better function?
@@ -2287,6 +2278,22 @@ std::string Character::extended_description() const
         ss << tag_colored_string( std::string( 5 - hp_bar.first.size(), '.' ), c_white );
         ss << std::endl;
     }
+    return ss.str();
+}
+
+std::string Character::extended_description() const
+{
+    std::ostringstream ss;
+    if( is_player() ) {
+        // <bad>This is me, <player_name>.</bad>
+        ss << string_format( _( "This is you - %s." ), name.c_str() );
+    } else {
+        ss << string_format( _( "This is %s." ), name.c_str() );
+    }
+
+    ss << std::endl << "--" << std::endl;
+
+    ss << hp_bars();
 
     ss << "--" << std::endl;
     ss << _( "Wielding:" ) << " ";

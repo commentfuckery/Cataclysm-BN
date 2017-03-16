@@ -249,6 +249,8 @@ class Character : public Creature, public visitable<Character>
         /** Converts an hp_part to a body_part */
         static body_part hp_to_bp(hp_part hpart);
 
+        /** Returns multi-line string with hp bars */
+        std::string hp_bars() const;
         /**
          * Displays menu with body part hp, optionally with hp estimation after healing.
          * Returns selected part.

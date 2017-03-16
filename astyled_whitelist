@@ -2,6 +2,7 @@ src/action.cpp
 src/active_item_cache.cpp
 src/activity_item_handling.cpp
 src/addiction.cpp
+src/ally_command_menu.cpp
 src/ammo.cpp
 src/armor_layers.cpp
 src/basecamp.cpp
@@ -99,6 +100,7 @@ src/active_item_cache.h
 src/activity_handlers.h
 src/addiction.h
 src/advanced_inv.h
+src/ally_command_menu.h
 src/ammo.h
 src/animation.h
 src/artifact.h
