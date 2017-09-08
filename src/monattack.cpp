@@ -450,19 +450,14 @@ bool mattack::acid_barf(monster *z)
     }
 
     z->moves -= 80;
-    // Make sure it happens before uncanny dodge
+    // Make sure it happens before dodge
     g->m.add_field( target->pos(), fd_acid, 1, 0 );
-    bool uncanny = target->uncanny_dodge();
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if( uncanny || dodge_check(z, target) ){
+    if( dodge_check( *z, *target ) ){
         auto msg_type = target == &g->u ? m_warning : m_info;
         target->add_msg_player_or_npc( msg_type,
             _("The %s barfs acid at you, but you dodge!"),
             _("The %s barfs acid at <npcname>, but they dodge!"),
             z->name().c_str() );
-        if( !uncanny ) {
-            target->on_dodge( z, z->type->melee_skill * 2 );
-        }
 
         return true;
     }
@@ -857,16 +852,10 @@ bool mattack::smash(monster *z)
     // Costs lots of moves to give you a little bit of a chance to get away.
     z->moves -= 400;
 
-    if( target->uncanny_dodge() ) {
-        return true;
-    }
-
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if( dodge_check( z, target ) ) {
+    if( dodge_check( *z, *target ) ) {
         target->add_msg_player_or_npc( _("The %s takes a powerful swing at you, but you dodge it!"),
                                        _("The %s takes a powerful swing at <npcname>, who dodges it!"),
                                        z->name().c_str() );
-        target->on_dodge( z, z->type->melee_skill * 2 );
         return true;
     }
 
@@ -1566,15 +1555,9 @@ bool mattack::fungus_inject(monster *z)
     add_msg(m_warning, _("The %s jabs at you with a needlelike point!"), z->name().c_str());
     z->moves -= 150;
 
-    if (g->u.uncanny_dodge()) {
-        return true;
-    }
-
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if (dodge_check(z, target)) {
+    if( dodge_check( *z, *target ) ) {
         target->add_msg_player_or_npc( _("You dodge it!"),
                                        _("<npcname> dodges it!") );
-        target->on_dodge( z, z->type->melee_skill * 2  );
         return true;
     }
 
@@ -1620,15 +1603,9 @@ bool mattack::fungus_bristle(monster *z)
     add_msg( msg_type, _("The %1$s swipes at %2$s with a barbed tendril!"), z->name().c_str(), target->disp_name().c_str() );
     z->moves -= 150;
 
-    if( target->uncanny_dodge() ) {
-        return true;
-    }
-
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if (dodge_check(z, target)) {
+    if( dodge_check( *z, *target ) ) {
         target->add_msg_player_or_npc( _("You dodge it!"),
                                        _("<npcname> dodges it!") );
-        target->on_dodge( z, z->type->melee_skill * 2 );
         return true;
     }
 
@@ -1786,14 +1763,9 @@ bool mattack::fungus_fortify(monster *z)
     add_msg(m_warning, _("The %s takes aim, and spears at you with a massive tendril!"), z->name().c_str());
     z->moves -= 150;
 
-    if( g->u.uncanny_dodge() ) {
-        return true;
-    }
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if (dodge_check(z, target)) {
+    if( dodge_check( *z, *target ) ) {
         target->add_msg_player_or_npc( _("You dodge it!"),
                                        _("<npcname> dodges it!") );
-        target->on_dodge( z, z->type->melee_skill * 2  );
         return true;
     }
 
@@ -1830,15 +1802,11 @@ bool mattack::impale(monster *z)
     }
 
     z->moves -= 80;
-    bool uncanny = target->uncanny_dodge();
-    if( uncanny || dodge_check(z, target) ){
+    if( dodge_check( *z, *target ) ){
         auto msg_type = target == &g->u ? m_warning : m_info;
         target->add_msg_player_or_npc( msg_type, _("The %s lunges at you, but you dodge!"),
                                             _("The %s lunges at <npcname>, but they dodge!"),
                                         z->name().c_str() );
-        if( !uncanny ) {
-            target->on_dodge( z, z->type->melee_skill * 2 );
-        }
 
         return true;
     }
@@ -1885,20 +1853,16 @@ bool mattack::dermatik(monster *z)
         return false;
     }
 
-    if( target->uncanny_dodge() ) {
-        return true;
-    }
     player *foe = dynamic_cast< player* >( target );
     if( foe == nullptr ) {
         return true; // No implanting monsters for now
     }
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if (dodge_check(z, target)) {
-        if( target == &g->u ) {
-            add_msg(_("The %s tries to land on you, but you dodge."), z->name().c_str());
-        }
+    
+    if( dodge_check( *z, *target ) ) {
+        target->add_msg_player_or_npc( _("The %s tries to land on you, but you dodge."),
+                                       _("The %s tries to land on <npcname>, but they dodge."),
+                                       z->name().c_str() );
         z->stumble();
-        target->on_dodge( z, z->type->melee_skill * 2 );
         return true;
     }
 
@@ -2284,14 +2248,9 @@ bool mattack::tentacle(monster *z)
     add_msg(m_bad, _("The %s lashes its tentacle at you!"), z->name().c_str());
     z->moves -= 100;
 
-    if (g->u.uncanny_dodge()) {
-        return true;
-    }
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if (dodge_check(z, target)) {
+    if( dodge_check( *z, *target ) ) {
         target->add_msg_player_or_npc( _("You dodge it!"),
                                        _("<npcname> dodges it!") );
-        target->on_dodge( z, z->type->melee_skill * 2  );
         return true;
     }
 
@@ -2329,17 +2288,12 @@ bool mattack::ranged_pull(monster *z)
 
     z->moves -= 150;
 
-    const bool uncanny = target->uncanny_dodge();
-    if( uncanny || dodge_check(z, target) ) {
+    if( dodge_check( *z, *target ) ) {
         z->moves -= 200;
         auto msg_type = foe == &g->u ? m_warning : m_info;
         target->add_msg_player_or_npc( msg_type, _("The %s's arms fly out at you, but you dodge!"),
                                                  _("The %s's arms fly out at <npcname>, but they dodge!"),
                                        z->name().c_str() );
-
-        if( !uncanny ) {
-            target->on_dodge( z, z->type->melee_skill * 2 );
-        }
 
         return true;
     }
@@ -2399,16 +2353,11 @@ bool mattack::grab(monster *z)
     }
 
     z->moves -= 80;
-    const bool uncanny = target->uncanny_dodge();
     const auto msg_type = target == &g->u ? m_warning : m_info;
-    if( uncanny || dodge_check(z, target) ){
+    if( dodge_check( *z, *target ) ){
         target->add_msg_player_or_npc( msg_type, _("The %s gropes at you, but you dodge!"),
-                                            _("The %s gropes at <npcname>, but they dodge!"),
-                                        z->name().c_str() );
-
-        if( !uncanny ) {
-            target->on_dodge( z, z->type->melee_skill * 2 );
-        }
+                                       _("The %s gropes at <npcname>, but they dodge!"),
+                                       z->name().c_str() );
 
         return true;
     }
@@ -2421,14 +2370,16 @@ bool mattack::grab(monster *z)
     ///\EFFECT_DEX increases chance to avoid being grabbed if DEX>STR
 
     ///\EFFECT_STR increases chance to avoid being grabbed if STR>DEX
-    if ( pl->has_grab_break_tec() && pl->get_grab_resist() > 0 && pl->get_dex() > pl->get_str() ?
-        rng(0, pl->get_dex()) : rng( 0, pl->get_str()) > rng( 0 , z->type->melee_sides + z->type->melee_dice)) {
+    if( pl->has_grab_break_tec() && pl->get_grab_resist() > 0 &&
+        ( pl->get_dex() > pl->get_str() ? rng( 0, pl->get_dex() ) : rng( 0, pl->get_str() ) ) >
+          rng( 0, z->type->melee_sides + z->type->melee_dice ) ) {
         if (target->has_effect( effect_grabbed )){
             target->add_msg_if_player(m_info,_("The %s tries to grab you as well, but you bat it away!"),
                                       z->name().c_str());
-        } else {target->add_msg_player_or_npc(m_info, _("The %s tries to grab you, but you break its grab!"),
-                                    _("The %s tries to grab <npcname>, but they break its grab!"),
-                                    z->name().c_str());
+        } else {
+            target->add_msg_player_or_npc( m_info, _("The %s tries to grab you, but you break its grab!"),
+                                           _("The %s tries to grab <npcname>, but they break its grab!"),
+                                           z->name().c_str());
         }
         return true;
     }
@@ -3522,18 +3473,14 @@ bool mattack::stretch_bite(monster *z)
             return true;
         }
     }
-    bool uncanny = target->uncanny_dodge();
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if( uncanny || dodge_check(z, target) ) {
+
+    if( dodge_check( *z, *target ) ) {
         z->moves -= 150;
         z->add_effect( effect_stunned, 3);
         auto msg_type = target == &g->u ? m_warning : m_info;
         target->add_msg_player_or_npc( msg_type, _("The %s's head extends to bite you, but you dodge and the head sails past!"),
                                               _("The %s's head extends to bite <npcname>, but they dodge and the head sails past!"),
                                     z->name().c_str() );
-        if( !uncanny ) {
-            target->on_dodge( z, z->type->melee_skill * 2 );
-        }
         return true;
     }
 
@@ -3620,15 +3567,9 @@ bool mattack::flesh_golem(monster *z)
     }
     z->moves -= 100;
 
-    if( target->uncanny_dodge() ) {
-        return true;
-    }
-
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if (dodge_check(z, target)) {
+    if( dodge_check( *z, *target ) ) {
         target->add_msg_player_or_npc( _("You dodge it!"),
                                        _("<npcname> dodges it!") );
-        target->on_dodge( z, z->type->melee_skill * 2 );
         return true;
     }
     body_part hit = target->get_random_body_part();
@@ -3686,15 +3627,10 @@ bool mattack::lunge(monster *z)
 
     z->moves -= 100;
 
-    if( target->uncanny_dodge()) {
-        return true;
-    }
 
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if (dodge_check(z, target)) {
+    if( dodge_check( *z, *target ) ) {
         target->add_msg_player_or_npc( _("The %1$s lunges at you, but you sidestep it!"),
                                        _("The %1$s lunges at <npcname>, but they sidestep it!"), z->name().c_str() );
-        target->on_dodge( z, z->type->melee_skill * 2 );
         return true;
     }
     body_part hit = target->get_random_body_part();
@@ -3751,15 +3687,11 @@ bool mattack::longswipe(monster *z)
 
             z->moves -= 150;
 
-            if (target->uncanny_dodge()) {
-                return true;
-            }
             // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-            if (dodge_check(z, target)) {
+            if( dodge_check( *z, *target ) ) {
                 target->add_msg_player_or_npc( _("The %s thrusts a claw at you, but you evade it!"),
                                             _("The %s thrusts a claw at <npcname>, but they evade it!"),
                                             z->name().c_str() );
-                target->on_dodge( z, z->type->melee_skill * 2  );
                 return true;
             }
             body_part hit = target->get_random_body_part();
@@ -3784,15 +3716,9 @@ bool mattack::longswipe(monster *z)
     }
     z->moves -= 100;
 
-    if (target->uncanny_dodge()) {
-        return true;
-    }
-
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if (dodge_check(z, target)) {
+    if( dodge_check( *z, *target ) ) {
         target->add_msg_player_or_npc( _("The %s slashes at your neck! You duck!"),
                                     _("The %s slashes at <npcname>'s neck! They duck!"), z->name().c_str() );
-        target->on_dodge( z, z->type->melee_skill * 2  );
         return true;
     }
     body_part hit = bp_head;
@@ -4203,15 +4129,9 @@ bool mattack::bio_op_takedown(monster *z)
     }
     z->moves -= 100;
 
-    if( target->uncanny_dodge() ) {
-        return true;
-    }
-
-    // Can we dodge the attack? Uses player dodge function % chance (melee.cpp)
-    if( dodge_check(z, target) ) {
+    if( dodge_check( *z, *target ) ) {
         target->add_msg_player_or_npc( _("You dodge it!"),
                                        _("<npcname> dodges it!") );
-        target->on_dodge( z, z->type->melee_skill * 2 );
         return true;
     }
     int dam = rng(3, 9);
@@ -4604,11 +4524,10 @@ bool mattack::stretch_attack(monster *z)
     target->add_msg_player_or_npc(msg_type, _("The %s thrusts its arm at you, stretching to reach you from afar"),
                                          _("The %s thrusts its arm at <npcname>"),
                                         z->name().c_str());
-    if (dodge_check(z, target) || g->u.uncanny_dodge()) {
+    if( dodge_check( *z, *target ) ) {
         target->add_msg_player_or_npc(msg_type, _("You evade the stretched arm and it sails past you!"),
                                              _("<npcname> evades the stretched arm!"),
                                             z->name().c_str());
-        target->on_dodge( z, z->type->melee_skill * 2 );
         //takes some time to retract the arm
         z->moves -= 150;
         return true;
@@ -4639,11 +4558,14 @@ bool mattack::stretch_attack(monster *z)
     return true;
 }
 
-bool mattack::dodge_check( monster *z, Creature *target ) {
-    ///\EFFECT_DODGE increases chance of dodging, vs their melee skill
-    float dodge = std::max( target->get_dodge() - rng( 0, z->get_hit() ), 0.0f );
-    if (rng(0, 10000) < 10000 / (1 + (99 * exp(-.6 * dodge)))) {
+bool mattack::dodge_check( monster &z, Creature &target ) {
+    return dodge_check( z, target, z.get_melee() );
+}
+
+bool mattack::dodge_check( monster &z, Creature &target, float at_accuracy ) {
+    if( target.uncanny_dodge() ) {
         return true;
     }
-    return false;
+    ///\EFFECT_DODGE increases chance of dodging a special attack, vs attacker's melee skill
+    return target.deal_melee_attack( &z, z.hit_roll_at_accuracy( at_accuracy ), at_accuracy * 2 ) >= 0.0f;
 }
